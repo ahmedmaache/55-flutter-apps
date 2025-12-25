@@ -1,0 +1,113 @@
+name: 📦 Manage Store Assets
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - validate
+          - generate
+          - upload
+          - sync
+      developer:
+        description: 'Developer account (or "all")'
+        required: true
+        default: 'all'
+        type: string
+
+jobs:
+  manage-assets:
+    name: 📦 ${{ github.event.inputs.action }} Store Assets
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: 📦 Install Dependencies
+        run: |
+          pip install -r requirements.txt || echo "No requirements.txt found"
+
+      - name: ✅ Validate Store Assets
+        if: github.event.inputs.action == 'validate'
+        run: |
+          echo "🔍 Validating store assets..."
+          DEVELOPER="${{ github.event.inputs.developer }}"
+          
+          if [ "$DEVELOPER" = "all" ]; then
+            DIRS=$(find store_assets -type d -mindepth 1 -maxdepth 1)
+          else
+            DEVELOPER_NAME=$(echo "$DEVELOPER" | sed 's/[0-9]*_//')
+            DIRS="store_assets/$DEVELOPER_NAME"
+          fi
+          
+          for dir in $DIRS; do
+            if [ -d "$dir" ]; then
+              echo "📁 Checking: $dir"
+              for app_dir in "$dir"/*; do
+                if [ -d "$app_dir" ]; then
+                  APP=$(basename "$app_dir")
+                  echo "  📱 App: $APP"
+                  
+                  # Check required files
+                  REQUIRED=("short_description.txt" "full_description.txt" "privacy_policy.txt")
+                  for file in "${REQUIRED[@]}"; do
+                    if [ -f "$app_dir/$file" ]; then
+                      echo "    ✅ $file"
+                    else
+                      echo "    ❌ Missing: $file"
+                    fi
+                  done
+                  
+                  # Check AAB file
+                  if ls "$app_dir"/*.aab 1> /dev/null 2>&1; then
+                    AAB_SIZE=$(du -h "$app_dir"/*.aab | cut -f1)
+                    echo "    ✅ AAB file: $AAB_SIZE"
+                  else
+                    echo "    ⚠️  No AAB file found"
+                  fi
+                fi
+              done
+            fi
+          done
+
+      - name: 🎨 Generate Store Assets
+        if: github.event.inputs.action == 'generate'
+        run: |
+          echo "🎨 Generating store assets..."
+          python3 generate_store_assets.py || echo "Using existing assets"
+
+      - name: 📤 Upload to GitHub Releases
+        if: github.event.inputs.action == 'upload'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: store-assets-${{ github.run_number }}
+          name: Store Assets #${{ github.run_number }}
+          body: |
+            ## 📦 Store Assets Release
+            
+            Store assets for Google Play Console submission.
+            
+            **Generated:** ${{ github.event.head_commit.timestamp }}
+          files: store_assets/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 🔄 Sync Assets
+        if: github.event.inputs.action == 'sync'
+        run: |
+          echo "🔄 Syncing store assets..."
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add store_assets/
+          git diff --staged --quiet || git commit -m "🤖 Sync store assets"
+          git push || echo "No changes to sync"
+

@@ -1,0 +1,167 @@
+name: Build Apps with Custom Icons
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer:
+        description: 'Developer account'
+        required: true
+        type: choice
+        options:
+          - 01_giggle_game
+          - 02_playpal_creations
+          - 03_olaf
+          - 04_good_kids
+          - 05_apocalypse_never
+          - 06_atomizer
+          - 07_okkyes
+          - 08_insightful_apps
+          - 09_build_deploy_labs
+          - 10_micho
+          - 11_playtime_programmers
+      app:
+        description: 'App name'
+        required: true
+        type: string
+      build_type:
+        description: 'Build type'
+        required: true
+        type: choice
+        options:
+          - both
+          - aab
+          - apk
+        default: both
+  push:
+    branches: [ main ]
+    paths:
+      - '**/lib/**'
+      - '**/pubspec.yaml'
+      - '**/android/**'
+
+jobs:
+  generate-icons:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install Pillow
+        # Install Noto emoji fonts for better emoji rendering
+        sudo apt-get update
+        sudo apt-get install -y fonts-noto-color-emoji fonts-noto-emoji || true
+    
+    - name: Generate app icons
+      run: |
+        echo "Starting icon generation..."
+        DEVELOPER="${{ github.event.inputs.developer }}"
+        if [ -z "$DEVELOPER" ]; then
+          DEVELOPER="all"
+        fi
+        echo "Generating icons for: $DEVELOPER"
+        # Try simple version first (more reliable)
+        python3 .github/scripts/generate_app_icons_simple.py "$DEVELOPER" || {
+          echo "Simple icon generation failed, trying full version..."
+          python3 .github/scripts/generate_app_icons.py "$DEVELOPER" || {
+            echo "Icon generation failed, but continuing with build..."
+            exit 0
+          }
+        }
+      continue-on-error: true
+    
+    - name: Commit icons (optional)
+      run: |
+        # Skip commit step - icons will be used directly in build
+        echo "Icons generated, skipping commit (will be used in build)"
+        exit 0
+      continue-on-error: true
+
+  build:
+    needs: generate-icons
+    if: always()  # Run even if icon generation fails
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.4'
+        channel: 'stable'
+        cache: true
+    
+    - name: Install dependencies
+      run: |
+        flutter doctor -v
+        if [ -n "${{ github.event.inputs.developer }}" ] && [ -n "${{ github.event.inputs.app }}" ]; then
+          cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        else
+          cd 01_giggle_game/joke_generator
+        fi
+        flutter pub get
+    
+    - name: Build AAB
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'aab' || github.event_name == 'push'
+      run: |
+        if [ -n "${{ github.event.inputs.developer }}" ] && [ -n "${{ github.event.inputs.app }}" ]; then
+          cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        else
+          cd 01_giggle_game/joke_generator
+        fi
+        flutter clean
+        flutter pub get
+        flutter build appbundle --release
+        echo "✅ AAB built successfully"
+    
+    - name: Build APK
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'apk' || github.event_name == 'push'
+      run: |
+        if [ -n "${{ github.event.inputs.developer }}" ] && [ -n "${{ github.event.inputs.app }}" ]; then
+          cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        else
+          cd 01_giggle_game/joke_generator
+        fi
+        flutter clean
+        flutter pub get
+        flutter build apk --release
+        echo "✅ APK built successfully"
+    
+    - name: Upload AAB artifact
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'aab' || github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-aab
+        path: |
+          **/build/app/outputs/bundle/release/*.aab
+        retention-days: 30
+        if-no-files-found: ignore
+    
+    - name: Upload APK artifact
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'apk' || github.event_name == 'push'
+      uses: actions/upload-artifact@v4
+      with:
+        name: app-release-apk
+        path: |
+          **/build/app/outputs/flutter-apk/*.apk
+        retention-days: 30
+        if-no-files-found: ignore
+    
+    - name: Copy to store_assets
+      run: |
+        mkdir -p store_assets
+        if [ -n "${{ github.event.inputs.developer }}" ] && [ -n "${{ github.event.inputs.app }}" ]; then
+          DEV="${{ github.event.inputs.developer }}"
+          APP="${{ github.event.inputs.app }}"
+          mkdir -p "store_assets/$DEV/$APP"
+          find "$DEV/$APP/build" -name "*.aab" -exec cp {} "store_assets/$DEV/$APP/" \;
+          find "$DEV/$APP/build" -name "*.apk" -exec cp {} "store_assets/$DEV/$APP/" \;
+        fi
+

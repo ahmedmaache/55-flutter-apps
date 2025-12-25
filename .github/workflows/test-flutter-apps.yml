@@ -1,0 +1,115 @@
+name: 🧪 Test Flutter Apps
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+    inputs:
+      developer:
+        description: 'Developer account folder or "all"'
+        required: true
+        default: 'all'
+        type: string
+      app_name:
+        description: 'Specific app name (optional)'
+        required: false
+        type: string
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  analyze:
+    name: 🔍 Analyze Code
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: 📋 Flutter Doctor
+        run: flutter doctor -v
+
+      - name: 🔍 Analyze All Apps
+        run: |
+          DEVELOPER="${{ github.event.inputs.developer || 'all' }}"
+          APP_NAME="${{ github.event.inputs.app_name || '' }}"
+          
+          if [ "$DEVELOPER" = "all" ]; then
+            APPS=$(find . -name "pubspec.yaml" -path "*/[0-9]*_*/*" | sed 's|^\./||' | sed 's|/pubspec.yaml||')
+          else
+            if [ -z "$APP_NAME" ]; then
+              APPS=$(find "./$DEVELOPER" -name "pubspec.yaml" -type f | sed 's|^\./||' | sed 's|/pubspec.yaml||')
+            else
+              APPS="$DEVELOPER/$APP_NAME"
+            fi
+          fi
+          
+          FAILED=0
+          for app in $APPS; do
+            echo "🔍 Analyzing: $app"
+            cd "$app"
+            if flutter analyze; then
+              echo "✅ $app: No issues"
+            else
+              echo "❌ $app: Issues found"
+              FAILED=$((FAILED + 1))
+            fi
+            cd - > /dev/null
+          done
+          
+          if [ $FAILED -gt 0 ]; then
+            echo "❌ $FAILED app(s) have issues"
+            exit 1
+          fi
+
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - developer: '01_giggle_game'
+            app: 'joke_generator'
+          - developer: '01_giggle_game'
+            app: 'meme_maker'
+          - developer: '01_giggle_game'
+            app: 'emoji_story'
+          - developer: '01_giggle_game'
+            app: 'laugh_tracker'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: 📦 Get Dependencies
+        working-directory: ${{ matrix.developer }}/${{ matrix.app }}
+        run: flutter pub get
+
+      - name: 🧪 Run Tests
+        working-directory: ${{ matrix.developer }}/${{ matrix.app }}
+        run: flutter test
+
+      - name: 📊 Test Coverage
+        working-directory: ${{ matrix.developer }}/${{ matrix.app }}
+        run: |
+          flutter test --coverage || echo "Coverage not available"
+          if [ -f coverage/lcov.info ]; then
+            echo "📊 Coverage report generated"
+          fi
+

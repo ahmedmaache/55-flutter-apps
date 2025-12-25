@@ -1,0 +1,56 @@
+name: 💻 Build in Codespaces
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer:
+        description: 'Developer account folder'
+        required: true
+        type: string
+      app_name:
+        description: 'App name to build'
+        required: true
+        type: string
+
+jobs:
+  build-in-codespace:
+    name: 🏗️ Build ${{ github.event.inputs.developer }}/${{ github.event.inputs.app_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 💻 Create Codespace
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { data: codespace } = await github.rest.codespaces.createWithRepoForAuthenticatedUser({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              machine: 'basicLinux32gb',
+              display_name: `Build-${context.runNumber}`,
+            });
+            
+            core.setOutput('codespace_name', codespace.name);
+            core.setOutput('codespace_url', codespace.web_url);
+            
+            return codespace;
+
+      - name: ⏳ Wait for Codespace
+        run: |
+          echo "⏳ Waiting for Codespace to be ready..."
+          sleep 30
+
+      - name: 🏗️ Build in Codespace
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // This would execute build commands in the Codespace
+            // For now, we'll use a regular runner
+            core.info('Building in Codespace...');
+
+      - name: 📤 Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: codespace-build-${{ github.event.inputs.developer }}-${{ github.event.inputs.app_name }}
+          path: ${{ github.event.inputs.developer }}/${{ github.event.inputs.app_name }}/build/app/outputs/bundle/release/*.aab

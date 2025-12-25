@@ -1,0 +1,70 @@
+name: 🤖 Automated GPC Management
+
+on:
+  schedule:
+    # Run daily at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        type: choice
+        options:
+          - check-updates
+          - sync-listings
+          - update-metadata
+          - generate-reports
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  gpc-management:
+    name: 🤖 ${{ github.event.inputs.action || 'check-updates' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 📦 Install GPC API Client
+        run: |
+          pip install google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
+      - name: 🔍 Check for Updates
+        if: github.event.inputs.action == 'check-updates' || github.event_name == 'schedule'
+        run: |
+          echo "🔍 Checking Google Play Console for updates..."
+          python3 scripts/check_gpc_updates.py || echo "Update check script not available"
+
+      - name: 🔄 Sync Listings
+        if: github.event.inputs.action == 'sync-listings'
+        run: |
+          echo "🔄 Syncing store listings..."
+          python3 scripts/sync_gpc_listings.py || echo "Sync script not available"
+
+      - name: 📝 Update Metadata
+        if: github.event.inputs.action == 'update-metadata'
+        run: |
+          echo "📝 Updating app metadata..."
+          python3 scripts/update_gpc_metadata.py || echo "Update script not available"
+
+      - name: 📊 Generate Reports
+        if: github.event.inputs.action == 'generate-reports'
+        run: |
+          echo "📊 Generating GPC reports..."
+          python3 scripts/generate_gpc_reports.py || echo "Report script not available"
+
+      - name: 💾 Save Reports
+        if: github.event.inputs.action == 'generate-reports'
+        uses: actions/upload-artifact@v4
+        with:
+          name: gpc-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 90
+

@@ -1,0 +1,91 @@
+name: Build Apps (Simple)
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer:
+        description: 'Developer account'
+        required: true
+        type: choice
+        options:
+          - 01_giggle_game
+          - 02_playpal_creations
+          - 03_olaf
+          - 04_good_kids
+          - 05_apocalypse_never
+          - 06_atomizer
+          - 07_okkyes
+          - 08_insightful_apps
+          - 09_build_deploy_labs
+          - 10_micho
+          - 11_playtime_programmers
+      app:
+        description: 'App name'
+        required: true
+        type: string
+      build_type:
+        description: 'Build type'
+        required: true
+        type: choice
+        options:
+          - both
+          - aab
+          - apk
+        default: both
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.38.4'
+        channel: 'stable'
+        cache: true
+    
+    - name: Install dependencies
+      run: |
+        flutter doctor -v
+        cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        flutter pub get
+    
+    - name: Build AAB
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'aab'
+      run: |
+        cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        flutter clean
+        flutter pub get
+        flutter build appbundle --release
+        echo "✅ AAB built successfully"
+    
+    - name: Build APK
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'apk'
+      run: |
+        cd "${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}"
+        flutter clean
+        flutter pub get
+        flutter build apk --release
+        echo "✅ APK built successfully"
+    
+    - name: Upload AAB artifact
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'aab'
+      uses: actions/upload-artifact@v4
+      with:
+        name: aab-${{ github.event.inputs.developer }}-${{ github.event.inputs.app }}
+        path: ${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}/build/app/outputs/bundle/release/*.aab
+        retention-days: 30
+        if-no-files-found: ignore
+    
+    - name: Upload APK artifact
+      if: github.event.inputs.build_type == 'both' || github.event.inputs.build_type == 'apk'
+      uses: actions/upload-artifact@v4
+      with:
+        name: apk-${{ github.event.inputs.developer }}-${{ github.event.inputs.app }}
+        path: ${{ github.event.inputs.developer }}/${{ github.event.inputs.app }}/build/app/outputs/flutter-apk/*.apk
+        retention-days: 30
+        if-no-files-found: ignore
+

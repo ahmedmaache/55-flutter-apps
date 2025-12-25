@@ -1,0 +1,96 @@
+name: 📱 Publish to Google Play Console
+
+on:
+  workflow_dispatch:
+    inputs:
+      developer:
+        description: 'Developer account folder (e.g., 01_giggle_game)'
+        required: true
+        type: choice
+        options:
+          - '01_giggle_game'
+          - '02_playpal_creations'
+          - '03_olaf'
+          - '04_good_kids'
+          - '05_apocalypse_never'
+          - '06_atomizer'
+          - '07_okkyes'
+          - '08_insightful_apps'
+          - '09_build_deploy_labs'
+          - '10_micho'
+          - '11_playtime_programmers'
+      app_name:
+        description: 'App name to publish'
+        required: true
+        type: string
+      track:
+        description: 'Release track'
+        required: true
+        default: 'internal'
+        type: choice
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
+      release_notes:
+        description: 'Release notes (optional)'
+        required: false
+        type: string
+
+env:
+  FLUTTER_VERSION: '3.24.0'
+
+jobs:
+  publish:
+    name: 📤 Publish ${{ github.event.inputs.developer }}/${{ github.event.inputs.app_name }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🎯 Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: 'stable'
+          cache: true
+
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'microsoft'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: 📥 Download AAB from Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: aab-${{ github.event.inputs.developer }}-${{ github.event.inputs.app_name }}
+          path: ./aab
+
+      - name: 🔐 Setup Google Play Service Account
+        run: |
+          echo "${{ secrets.GPC_SERVICE_ACCOUNT_JSON }}" > $HOME/gpc-service-account.json
+          chmod 600 $HOME/gpc-service-account.json
+
+      - name: 📤 Publish to Google Play Console
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GPC_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ secrets.GPC_PACKAGE_NAME }}
+          releaseFiles: ./aab/*.aab
+          track: ${{ github.event.inputs.track }}
+          status: completed
+          changesNotSentForReview: false
+          inAppUpdatePriority: 2
+          whatsNewDirectory: ./release-notes
+          mappingFile: ./mapping.txt
+
+      - name: 📊 Publish Summary
+        run: |
+          echo "## ✅ Published to Google Play Console" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**App:** ${{ github.event.inputs.developer }}/${{ github.event.inputs.app_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Track:** ${{ github.event.inputs.track }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Status:** ✅ Published successfully" >> $GITHUB_STEP_SUMMARY
