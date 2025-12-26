@@ -1,0 +1,9 @@
+Be ready for anything! Survival Calculator provides quick calculations for food storage, water needs, and emergency energy requirements based on your family size.
+
+Features:
+- Supply planning tools
+- First aid quick-guides
+- Offline access to survival data
+- Checklists for go-bags
+
+Preparation is the key to survival.

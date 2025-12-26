@@ -1,0 +1,9 @@
+Read a book a day! Speed Reader Pro uses scientifically-backed methods like RSVP (Rapid Serial Visual Presentation) to increase your reading speed while maintaining comprehension.
+
+Features:
+- Adjustable WPM (Words Per Minute)
+- Comprehension tests
+- Eye-training exercises
+- Support for EPUB and TXT
+
+Accelerate your learning!

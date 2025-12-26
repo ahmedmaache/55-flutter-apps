@@ -1,0 +1,9 @@
+1, 2, 3... go! Numbers & Counting is the perfect introduction to math for toddlers and preschoolers. Fun interactive games help children understand the concept of numbers.
+
+Features:
+- Counting games with cute characters
+- Basic addition and subtraction
+- Colorful animations
+- Progress tracking for parents
+
+Building math foundations early!

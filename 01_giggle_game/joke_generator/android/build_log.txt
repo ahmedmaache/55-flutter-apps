@@ -1,0 +1,41 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+
+> Configure project :app
+e: file:///home/maache/55%20flutterapps/01_giggle_game/joke_generator/android/app/build.gradle.kts:10:31: Unresolved reference: util
+e: file:///home/maache/55%20flutterapps/01_giggle_game/joke_generator/android/app/build.gradle.kts:12:34: Unresolved reference: io
+w: file:///home/maache/55%20flutterapps/01_giggle_game/joke_generator/android/app/build.gradle.kts:26:9: 'jvmTarget: String' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+FAILURE: Build failed with an exception.
+
+* Where:
+Build file '/home/maache/55 flutterapps/01_giggle_game/joke_generator/android/app/build.gradle.kts' line: 10
+
+* What went wrong:
+Script compilation errors:
+
+  Line 10: val keystoreProperties = java.util.Properties()
+                                         ^ Unresolved reference: util
+
+  Line 12:     keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+                                            ^ Unresolved reference: io
+
+  Line 26:         jvmTarget = JavaVersion.VERSION_17.toString()
+                   ^ 'jvmTarget: String' is deprecated. Please migrate to the compilerOptions DSL. More details are here: https://kotl.in/u1r8ln
+
+3 errors
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights.
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 6s
+4 actionable tasks: 4 up-to-date

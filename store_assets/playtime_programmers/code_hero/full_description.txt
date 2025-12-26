@@ -1,0 +1,9 @@
+The world of Code is in danger! Only a Code Hero can save it. In this RPG, you solve coding puzzles to cast spells, fight bugs, and level up your character.
+
+Features:
+- Logic-based puzzle battles
+- Educational coding storyline
+- Multiple 'paths' (languages)
+- Character customization
+
+Save the world, learn to code.

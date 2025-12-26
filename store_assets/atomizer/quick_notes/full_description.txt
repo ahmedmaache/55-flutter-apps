@@ -1,0 +1,9 @@
+Don't let a good idea get away! Quick Notes is designed for speed. Open the app, type your thought, and save it in a second. No bloat, just performance.
+
+Features:
+- Instant-open technology
+- Minimalist Markdown support
+- Simple categorization
+- iCloud/Google Drive sync
+
+Fast notes for fast minds.

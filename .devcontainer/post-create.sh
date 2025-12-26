@@ -13,8 +13,7 @@ if [ ! -d "$FLUTTER_INSTALL_DIR" ]; then
     # Download Flutter
     cd /tmp
     wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_${FLUTTER_VERSION}-stable.tar.xz" -O flutter.tar.xz || \
-    wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.0-stable.tar.xz" -O flutter.tar.xz || \
-    wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.19.0-stable.tar.xz" -O flutter.tar.xz
+    wget -q "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_3.22.0-stable.tar.xz" -O flutter.tar.xz
     
     if [ -f flutter.tar.xz ]; then
         sudo mkdir -p "$FLUTTER_INSTALL_DIR"
@@ -30,9 +29,27 @@ else
     echo "✅ Flutter already installed at $FLUTTER_INSTALL_DIR"
 fi
 
-# Add Flutter to PATH
-export PATH="$FLUTTER_INSTALL_DIR/bin:$PATH"
-echo 'export PATH="/usr/local/flutter/bin:$PATH"' >> ~/.bashrc
+# Install Android Command-line Tools
+ANDROID_SDK_ROOT="/usr/local/lib/android/sdk"
+if [ ! -d "$ANDROID_SDK_ROOT" ]; then
+    echo "🤖 Installing Android Command-line Tools..."
+    sudo mkdir -p "$ANDROID_SDK_ROOT/cmdline-tools"
+    cd /tmp
+    wget -q "https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip" -O cmdline-tools.zip
+    sudo unzip -q cmdline-tools.zip -d "$ANDROID_SDK_ROOT/cmdline-tools"
+    sudo mv "$ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools" "$ANDROID_SDK_ROOT/cmdline-tools/latest"
+    sudo chown -R vscode:vscode "$ANDROID_SDK_ROOT"
+    rm cmdline-tools.zip
+fi
+
+# Add Flutter and Android to PATH
+export PATH="$FLUTTER_INSTALL_DIR/bin:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH"
+export ANDROID_HOME="$ANDROID_SDK_ROOT"
+export CHROME_EXECUTABLE="/usr/bin/google-chrome"
+
+echo 'export ANDROID_HOME="/usr/local/lib/android/sdk"' >> ~/.bashrc
+echo 'export PATH="/usr/local/flutter/bin:/usr/local/lib/android/sdk/cmdline-tools/latest/bin:/usr/local/lib/android/sdk/platform-tools:$PATH"' >> ~/.bashrc
+echo 'export CHROME_EXECUTABLE="/usr/bin/google-chrome"' >> ~/.bashrc
 
 # Add Flutter aliases
 cat >> ~/.bashrc << 'EOF'
@@ -50,13 +67,18 @@ echo "📚 Installing Flutter dependencies..."
 flutter --version
 flutter doctor
 
+# Install Android SDK components
+echo "🤖 Installing Android SDK platforms and build-tools..."
+sdkmanager --sdk_root="$ANDROID_SDK_ROOT" "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
 # Accept Android licenses (for Android builds)
 echo "📝 Setting up Android licenses..."
+yes | sdkmanager --sdk_root="$ANDROID_SDK_ROOT" --licenses || echo "⚠️  Licenses already accepted"
 yes | flutter doctor --android-licenses || echo "⚠️  Android licenses setup skipped (may need manual setup)"
 
 # Precache Flutter
 echo "💾 Precaching Flutter artifacts..."
-flutter precache
+flutter precache --android
 
 # Install additional tools
 echo "🔧 Installing additional tools..."

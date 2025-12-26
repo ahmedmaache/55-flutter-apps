@@ -1,0 +1,9 @@
+What do you want to achieve today? Goal Tracker OK helps you break down your dreams into manageable, trackable goals. Stay organized and stay motivated.
+
+Features:
+- Goal categorization
+- Milestone tracking
+- Motivational quotes
+- Clean, easy-to-use UI
+
+Navigate to success.

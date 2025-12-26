@@ -1,0 +1,9 @@
+Your pocket guide to Version Control. Never forget a git command again. From basic commits to complex rebases, we have it all documented.
+
+Features:
+- Searchable command list
+- Workflow diagrams
+- Best practices guide
+- Works 100% offline
+
+Git it done!

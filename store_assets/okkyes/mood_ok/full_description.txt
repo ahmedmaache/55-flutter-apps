@@ -1,0 +1,9 @@
+How are you really feeling? Mood OK provides a simple way to log your emotions and identify patterns in your daily life. Better understanding leads to better living.
+
+Features:
+- One-tap mood logging
+- Pattern analysis and graphs
+- Private daily journaling
+- Data export for support
+
+Understand your journey.

@@ -1,0 +1,9 @@
+Track more than just streaks. Habit Insights analyzes the correlations between your habits and your mood/productivity to help you build the perfect routine.
+
+Features:
+- Multi-habit correlation engine
+- Flexible tracking options
+- Heatmap visualizations
+- Smart notifications
+
+Build a better you.

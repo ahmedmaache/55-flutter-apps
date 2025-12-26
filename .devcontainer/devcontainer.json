@@ -1,5 +1,5 @@
 {
-  "name": "Flutter Development",
+  "name": "55 Flutter Apps - Master Builder",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   
   "features": {
@@ -22,13 +22,18 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "eamodio.gitlens",
-        "ms-vscode.vscode-json"
+        "ms-vscode.vscode-json",
+        "redhat.vscode-yaml",
+        "github.vscode-github-actions",
+        "oderwat.indent-rainbow"
       ],
       "settings": {
         "dart.flutterSdkPath": "/usr/local/flutter",
         "dart.lineLength": 80,
         "editor.formatOnSave": true,
         "editor.defaultFormatter": "dart-code.dart-code",
+        "terminal.integrated.fontSize": 14,
+        "workbench.colorTheme": "Default Dark Modern",
         "[dart]": {
           "editor.formatOnSave": true,
           "editor.defaultFormatter": "dart-code.dart-code",
@@ -37,10 +42,6 @@
           "editor.suggestSelection": "first",
           "editor.tabCompletion": "onlySnippets",
           "editor.wordBasedSuggestions": "off"
-        },
-        "[python]": {
-          "editor.defaultFormatter": "ms-python.black-formatter",
-          "editor.formatOnSave": true
         }
       }
     }

@@ -1,0 +1,9 @@
+Your personal digital library assistant. Reading Tracker helps you log the books you've read, track your current progress, and save important quotes and notes.
+
+Features:
+- ISBN barcode scanner
+- Reading speed estimator
+- Yearly reading goals
+- Sync with fellow readers
+
+Never forget a great book.

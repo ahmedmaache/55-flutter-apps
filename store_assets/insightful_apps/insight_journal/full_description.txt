@@ -1,0 +1,9 @@
+Go deeper with your writing. Insight Journal uses advanced text analysis to help you identify themes and emotional trends in your daily journal entries.
+
+Features:
+- Sentiment analysis tools
+- Keyword and theme tracking
+- Password protection
+- Export to PDF/Markdown
+
+Write your way to clarity.

@@ -1,0 +1,9 @@
+The bridge between inspiration and execution. Startup Ideas Generator helps you brainstorm new business models using proven frameworks and creative prompts.
+
+Features:
+- Idea generation engine
+- SWOT analysis builder
+- Market size calculators
+- Idea voting system
+
+Start your journey.

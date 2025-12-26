@@ -1,0 +1,9 @@
+The server is crashing! Can you find the bugs in time? Bug Squash is a fast-paced reaction game where players must identify syntax errors and logical bugs in code blocks.
+
+Features:
+- Fast-paced arcade gameplay
+- Real code snippets (Dart, JS, Py)
+- Increasing difficulty levels
+- Leaderboards and achievements
+
+Become a debugging master!

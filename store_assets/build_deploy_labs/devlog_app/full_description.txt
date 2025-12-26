@@ -1,0 +1,9 @@
+Ship better code with DevLog! Document your daily wins, bugs solved, and feature plans in a tool built specifically for developers.
+
+Features:
+- Project-based organization
+- Code snippet support
+- Push-to-GitHub integration
+- Developer-friendly UI
+
+Log. Build. Ship.

@@ -1,0 +1,1 @@
+Quick reference for Git commands and best practices.

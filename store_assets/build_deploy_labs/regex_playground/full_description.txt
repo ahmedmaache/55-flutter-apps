@@ -1,0 +1,9 @@
+Master the art of Regex! Our playground provides a real-time environment to test your patterns against sample text, with helpful explanations and cheat sheets.
+
+Features:
+- Real-time matching
+- Regex cheat sheet included
+- Library of common patterns
+- Support for multiple languages
+
+Don't fear the pattern.

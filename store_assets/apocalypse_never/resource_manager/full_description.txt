@@ -1,0 +1,9 @@
+Can you manage a community's resources under pressure? Resource Manager Sim is a deep strategy game where every choice affects the survival of your settlement.
+
+Features:
+- Complex resource loops
+- Dynamic events and disasters
+- Research and tech trees
+- Multiple endings
+
+A true test of management skills.

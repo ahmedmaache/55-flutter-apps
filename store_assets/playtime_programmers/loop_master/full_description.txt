@@ -1,0 +1,9 @@
+If you can master the loop, you can master the code. Loop Master is a dedicated puzzle game focused on the most important concept in programming.
+
+Features:
+- 100+ logical puzzles
+- Visual loop building
+- Optimization challenges
+- Brain-training mechanics
+
+Don't get stuck in a loop!

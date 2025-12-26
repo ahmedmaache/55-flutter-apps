@@ -1,0 +1,9 @@
+Take control of your money. Spending Insights provides a high-level view of where your money goes, helping you identify areas for saving without the complexity of traditional banking apps.
+
+Features:
+- Category-based logging
+- Monthly budget trackers
+- Spending visualizations
+- Privacy-first: no bank links
+
+Master your budget.

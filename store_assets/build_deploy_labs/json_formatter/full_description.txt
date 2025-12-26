@@ -1,0 +1,9 @@
+Developer utility on the go! JSON Formatter makes it easy to read, validate, and format complex JSON data right on your phone.
+
+Features:
+- Syntax highlighting
+- Error detection
+- One-tap copy/paste
+- Offline functionality
+
+JSON made readable.

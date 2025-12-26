@@ -1,0 +1,9 @@
+Enter the valley and learn to store, move, and transform data. Variable Valley is a stunning logic game that teaches the fundamental concept of data types and storage.
+
+Features:
+- Beautiful landscape-based puzzles
+- Interactive data flow mechanics
+- Relaxing soundtrack
+- educational progress tracking
+
+Data is a journey.

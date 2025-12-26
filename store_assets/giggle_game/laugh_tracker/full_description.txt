@@ -1,0 +1,9 @@
+Did you know that laughing reduces stress? Laugh Tracker helps you gamify your wellness journey by tracking how much you laugh every day. Set goals, earn achievements, and feel better!
+
+Features:
+- Simple 'Tap to Laugh' tracking
+- Daily and weekly laughter stats
+- Wellness tips and quotes
+- Mood integration
+
+Laugh more, live better!

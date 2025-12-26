@@ -27,22 +27,25 @@ UPDATED=0
 for gradle_file in $GRADLE_FILES; do
     TOTAL=$((TOTAL + 1))
     
-    # Check if already has signing config
-    if grep -q "signingConfigs" "$gradle_file"; then
-        echo -e "${YELLOW}⏭️  Skipping $gradle_file (already configured)${NC}"
-        continue
-    fi
+    # Check if already has signing config (commented out to allow forced update)
+    # if grep -q "signingConfigs" "$gradle_file"; then
+    #     echo -e "${YELLOW}⏭️  Skipping $gradle_file (already configured)${NC}"
+    #     continue
+    # fi
     
     # Read the file
     CONTENT=$(cat "$gradle_file")
     
-    # Check if it's using debug signing
-    if echo "$CONTENT" | grep -q "signingConfig = signingConfigs.getByName(\"debug\")"; then
+    # Updated check: always update build.gradle.kts files
+    if true; then
         # Create backup
         cp "$gradle_file" "$gradle_file.bak"
         
         # Create new content with signing config
         NEW_CONTENT=$(cat << 'EOF'
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -52,9 +55,9 @@ plugins {
 
 // Load keystore properties
 val keystorePropertiesFile = rootProject.file("key.properties")
-val keystoreProperties = java.util.Properties()
+val keystoreProperties = Properties()
 if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(java.io.FileInputStream(keystorePropertiesFile))
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
 android {
@@ -74,10 +77,10 @@ android {
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
-                keyAlias = keystoreProperties["keyAlias"] as String
-                keyPassword = keystoreProperties["keyPassword"] as String
-                storeFile = file(keystoreProperties["storeFile"] as String)
-                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties.getProperty("keyAlias")
+                keyPassword = keystoreProperties.getProperty("keyPassword")
+                storeFile = file(keystoreProperties.getProperty("storeFile"))
+                storePassword = keystoreProperties.getProperty("storePassword")
             }
         }
     }
